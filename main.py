@@ -1,9 +1,15 @@
-from jira import JIRA
+from datetime import datetime, time
+import os
+
+
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime, time
+from jira import JIRA
+
 
 from config import API_TOKEN, EMAIL_ID, SERVER_LINK
+
+cron_command = "0 18 * * 1-5 cd {} && python3 {}/main.py".format(os.getcwd(), os.getcwd())
 
 jira = JIRA(basic_auth=(f"{EMAIL_ID}", f"{API_TOKEN}"), options={'server': f'{SERVER_LINK}'})
 
@@ -47,6 +53,18 @@ def get_issues(project_key):
         success_label.config(text=f"An error occurred: {e}")
     return issue_list
 
+def create_cron_job():
+    with open("/tmp/my_cron.txt", "w") as f:
+        f.write(cron_command)
+    os.system("crontab /tmp/my_cron.txt")
+
+def set_cron_job():
+    create_cron_job()
+    success_label.config(text="Cron job set successfully")
+
+def remove_cron_job():
+    os.system("crontab -r")
+    success_label.config(text="Cron job removed successfully")
 
 root = tk.Tk()
 root.title("Jira Hour Logger")
@@ -92,11 +110,18 @@ comment_label = ttk.Label(root, text="Enter a comment:")
 comment_label.grid(row=2, column=0, padx=10, pady=10)
 
 # Create a text field for the comment
-comment_var = tk.Text(root, height=5, width=25)
+comment_var = tk.Text(root, height=10, width=40)
 comment_var.grid(row=2, column=1, padx=10, pady=10)
 
 # Create a button to log the hours
 log_button = ttk.Button(root, text="Log Hours", command=log_hours)
 log_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+
+
+set_cron_button = ttk.Button(root, text="Set Cron Job", command=set_cron_job)
+set_cron_button.grid(row=1, column=2, padx=10, pady=10)
+
+remove_cron_button = ttk.Button(root, text="Remove Cron Job", command=remove_cron_job)
+remove_cron_button.grid(row=2, column=2, padx=10, pady=10)
 
 root.mainloop()
