@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import datetime, time
 
-from .config import API_TOKEN, EMAIL_ID, SERVER_LINK
+from config import API_TOKEN, EMAIL_ID, SERVER_LINK
 
 jira = JIRA(basic_auth=(f"{EMAIL_ID}", f"{API_TOKEN}"), options={'server': f'{SERVER_LINK}'})
 
